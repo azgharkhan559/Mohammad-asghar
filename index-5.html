@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ps" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Asghar حساب سیستم</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f5f7;color:#222;font-family:Tahoma,Arial,sans-serif}
+header{background:#174e63;color:#fff;padding:16px;text-align:center;font-size:22px;font-weight:bold}
+nav{display:flex;overflow-x:auto;background:#fff;border-bottom:1px solid #ddd;position:sticky;top:0;z-index:10}
+nav button{border:0;background:#fff;padding:12px 14px;white-space:nowrap;font-size:14px}
+nav button.active{background:#174e63;color:#fff}
+main{max-width:1100px;margin:auto;padding:10px}.page{display:none}.page.active{display:block}
+.card{background:#fff;border-radius:12px;padding:14px;margin:10px 0;box-shadow:0 1px 5px #0002}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+label{font-size:13px;color:#555}input,select,button{font:inherit}
+input,select{width:100%;padding:10px;margin-top:4px;border:1px solid #ccc;border-radius:8px}
+.btn{border:0;border-radius:8px;padding:10px 14px;background:#174e63;color:#fff}.red{background:#b42318}.gray{background:#68737a}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#e8f3f6;border-radius:10px;padding:12px;text-align:center}.stat b{display:block;font-size:20px;margin-top:5px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{border:1px solid #ddd;padding:7px;text-align:center}th{background:#e9eef0}.wide{overflow-x:auto}
+.accountBox{border:1px solid #ddd;border-radius:9px;padding:10px;margin:7px 0}
+.small{font-size:12px;color:#666}.hidden{display:none!important}
+@media(max-width:600px){.grid,.summary{grid-template-columns:1fr}}
+@media print{nav,.actions,.no-print{display:none!important}body{background:#fff}.card{box-shadow:none}}
+</style>
+</head>
+<body>
+<header>Asghar — د حسابونو سیستم</header>
+<nav id="nav"></nav>
+<main>
+
+<section id="page-dashboard" class="page active">
+<div class="card"><h2>عمومي مجموعه</h2>
+<div class="summary">
+<div class="stat">ټولې راغلې پیسې <b id="sumIn">0</b></div>
+<div class="stat">ټول مصرف <b id="sumOut">0</b></div>
+<div class="stat">خالص پاتې <b id="sumBalance">0</b></div>
+</div></div>
+<div class="card"><h3>د هر حساب مجموعه</h3><div id="dashboardAccounts"></div></div>
+</section>
+
+<section id="page-accounts" class="page">
+<div class="card"><h2>د حساب ثبت</h2>
+<p class="small">لومړی حساب وټاکه، بیا راغلې پیسې یا مصرف ثبت کړه. تاریخ میلادي دی.</p>
+<div class="grid">
+<label>حساب<select id="accountSelect"></select></label>
+<label>ډول<select id="entryType"><option value="in">راغلې پیسې</option><option value="out">مصرف</option></select></label>
+<label>تاریخ (میلادي)<input id="entryDate" type="date"></label>
+<label>روپۍ / مبلغ<input id="entryAmount" type="number" inputmode="decimal" min="0"></label>
+<label>تفصیل<input id="entryDesc" type="text"></label>
+</div>
+<div class="actions"><button class="btn" id="saveEntry">ثبت کړه</button><button class="btn gray" id="printAccounts">A4 / PDF</button></div>
+</div>
+<div class="card"><h3>ټول حسابونه او بیلانس</h3><div id="accountCards"></div></div>
+</section>
+
+<section id="page-purchases" class="page">
+<div class="card"><h2>خریداري</h2>
+<div class="grid">
+<label>تاریخ (میلادي)<input id="purchaseDate" type="date"></label>
+<label>تفصیل<input id="purchaseDesc" type="text"></label>
+<label>روپۍ<input id="purchaseAmount" type="number" inputmode="decimal" min="0"></label>
+<label>خانه<select id="purchaseAccount"></select></label>
+</div>
+<div class="actions"><button class="btn" id="savePurchase">خریداري ثبت کړه</button><button class="btn gray" id="printPurchase">A4 / PDF</button></div>
+<div class="wide"><table><thead><tr><th>تاریخ</th><th>تفصیل</th><th>روپۍ</th><th>خانه</th><th>عمل</th></tr></thead><tbody id="purchaseRows"></tbody></table></div>
+<h3>د خریداري ټول جمع: <span id="purchaseTotal">0</span></h3>
+</div>
+</section>
+
+<section id="page-suppliers" class="page">
+<div class="card"><h2>د اجناسو راوړونکي</h2>
+<p class="small">مثال: پلانکي کس ۵ موټر کرش راوړل.</p>
+<div class="grid">
+<label>تاریخ (میلادي)<input id="supplierDate" type="date"></label>
+<label>د راوړونکي نوم<input id="supplierName"></label>
+<label>جنس<select id="supplierItem"><option>کرش</option><option>ریګ</option><option>سیمنت</option><option>سیخ</option><option>نور</option></select></label>
+<label>د موټرو شمېر<input id="supplierTrucks" type="number" inputmode="decimal" min="0"></label>
+<label>اندازه<input id="supplierQty" type="number" inputmode="decimal" min="0"></label>
+<label>تفصیل<input id="supplierDesc"></label>
+</div>
+<div class="actions"><button class="btn" id="saveSupplier">ثبت کړه</button></div>
+<div class="wide"><table><thead><tr><th>تاریخ</th><th>راوړونکی</th><th>جنس</th><th>موټر</th><th>اندازه</th><th>تفصیل</th><th>عمل</th></tr></thead><tbody id="supplierRows"></tbody></table></div>
+</div>
+<div class="card"><h3>د راوړونکو مجموعه</h3><div id="supplierSummary"></div></div>
+</section>
+
+<section id="page-all" class="page">
+<div class="card"><h2>ټولې معاملې</h2>
+<div class="actions"><button class="btn gray" id="printAll">A4 / PDF</button></div>
+<div class="wide"><table><thead><tr><th>تاریخ</th><th>حساب</th><th>ډول</th><th>تفصیل</th><th>روپۍ</th><th>عمل</th></tr></thead><tbody id="allRows"></tbody></table></div>
+</div>
+</section>
+
+</main>
+<script>
+(function(){
+"use strict";
+var STORAGE="ASGHAR_ACCOUNT_SYSTEM_V3";
+var defaultAccounts=[
+{name:"ریس نجیب ډالر",currency:"ډالر"},
+{name:"ریس نجیب افغانی",currency:"افغانی"},
+{name:"حاجی صاحب ډالر",currency:"ډالر"},
+{name:"حاجي صاحب افغانی",currency:"افغانی"},
+{name:"ریس ورور ډالر",currency:"ډالر"},
+{name:"ریس ورور افغانی",currency:"افغانی"}
+];
+var db;
+try{db=JSON.parse(localStorage.getItem(STORAGE)||"null")}catch(e){db=null}
+if(!db){db={accounts:defaultAccounts,entries:[],purchases:[],suppliers:[]};save();}
+function save(){localStorage.setItem(STORAGE,JSON.stringify(db));}
+function $(id){return document.getElementById(id);}
+function today(){return new Date().toISOString().slice(0,10);}
+function money(n){return Number(n||0).toLocaleString();}
+function accountName(i){return db.accounts[i]?db.accounts[i].name:"";}
+
+var nav=$("nav");
+var tabs=[
+["page-dashboard","عمومي مجموعه"],
+["page-accounts","حسابونه / ثبت"],
+["page-purchases","خریداري"],
+["page-suppliers","اجناس راوړونکي"],
+["page-all","ټولې معاملې"]
+];
+tabs.forEach(function(t,i){
+var b=document.createElement("button");b.textContent=t[1];b.dataset.page=t[0];
+b.onclick=function(){document.querySelectorAll(".page").forEach(function(x){x.classList.remove("active")});$(t[0]).classList.add("active");nav.querySelectorAll("button").forEach(function(x){x.classList.remove("active")});b.classList.add("active");renderAll();};
+if(i===0)b.className="active";nav.appendChild(b);
+});
+
+function fillAccounts(id){
+var s=$(id);s.innerHTML="";
+db.accounts.forEach(function(a,i){var o=document.createElement("option");o.value=i;o.textContent=a.name+" ("+a.currency+")";s.appendChild(o);});
+}
+function setDates(){
+["entryDate","purchaseDate","supplierDate"].forEach(function(id){if(!$(id).value)$(id).value=today();});
+}
+function calcAccount(i){
+var ins=0,out=0;
+db.entries.forEach(function(e){if(Number(e.account)===Number(i)){if(e.type==="in")ins+=Number(e.amount);else out+=Number(e.amount);}});
+return {ins:ins,out:out,balance:ins-out};
+}
+function renderDashboard(){
+var ti=0,to=0;
+db.entries.forEach(function(e){if(e.type==="in")ti+=Number(e.amount);else to+=Number(e.amount);});
+$("sumIn").textContent=money(ti);$("sumOut").textContent=money(to);$("sumBalance").textContent=money(ti-to);
+$("dashboardAccounts").innerHTML=db.accounts.map(function(a,i){var x=calcAccount(i);return "<div class='accountBox'><b>"+a.name+"</b> — راغلي: "+money(x.ins)+" | مصرف: "+money(x.out)+" | پاتې: "+money(x.balance)+"</div>";}).join("");
+}
+function renderAccounts(){
+$("accountCards").innerHTML=db.accounts.map(function(a,i){var x=calcAccount(i);return "<div class='accountBox'><b>"+a.name+"</b> ("+a.currency+")<br>راغلي: "+money(x.ins)+" &nbsp; مصرف: "+money(x.out)+" &nbsp; پاتې: <b>"+money(x.balance)+"</b></div>";}).join("");
+}
+function renderPurchases(){
+$("purchaseRows").innerHTML=db.purchases.map(function(p,i){return "<tr><td>"+p.date+"</td><td>"+esc(p.desc)+"</td><td>"+money(p.amount)+"</td><td>"+esc(accountName(p.account))+"</td><td><button class='btn red' onclick='window.delPurchase("+i+")'>حذف</button></td></tr>";}).join("");
+$("purchaseTotal").textContent=money(db.purchases.reduce(function(s,p){return s+Number(p.amount);},0));
+}
+function renderSuppliers(){
+$("supplierRows").innerHTML=db.suppliers.map(function(s,i){return "<tr><td>"+s.date+"</td><td>"+esc(s.name)+"</td><td>"+esc(s.item)+"</td><td>"+s.trucks+"</td><td>"+s.qty+"</td><td>"+esc(s.desc)+"</td><td><button class='btn red' onclick='window.delSupplier("+i+")'>حذف</button></td></tr>";}).join("");
+var m={};
+db.suppliers.forEach(function(s){var k=s.name+"|"+s.item;if(!m[k])m[k]={name:s.name,item:s.item,trucks:0,qty:0};m[k].trucks+=Number(s.trucks);m[k].qty+=Number(s.qty);});
+$("supplierSummary").innerHTML="<div class='wide'><table><tr><th>راوړونکی</th><th>جنس</th><th>ټول موټر</th><th>ټوله اندازه</th></tr>"+Object.keys(m).map(function(k){var x=m[k];return "<tr><td>"+esc(x.name)+"</td><td>"+esc(x.item)+"</td><td>"+x.trucks+"</td><td>"+x.qty+"</td></tr>";}).join("")+"</table></div>";
+}
+function renderAll(){
+$("allRows").innerHTML=db.entries.map(function(e,i){return "<tr><td>"+e.date+"</td><td>"+esc(accountName(e.account))+"</td><td>"+(e.type==="in"?"راغلې پیسې":"مصرف")+"</td><td>"+esc(e.desc)+"</td><td>"+money(e.amount)+"</td><td><button class='btn red' onclick='window.delEntry("+i+")'>حذف</button></td></tr>";}).join("");
+}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c];});}
+
+$("saveEntry").onclick=function(){
+var amount=Number($("entryAmount").value);
+if(!amount||amount<0){alert("روپۍ/مبلغ ولیکه");return;}
+db.entries.push({date:$("entryDate").value||today(),account:Number($("accountSelect").value),type:$("entryType").value,amount:amount,desc:$("entryDesc").value});
+save();$("entryAmount").value="";$("entryDesc").value="";renderAll();alert("حساب ثبت شو.");
+};
+$("savePurchase").onclick=function(){
+var amount=Number($("purchaseAmount").value);
+if(!amount||amount<0){alert("د خریداري روپۍ ولیکه");return;}
+var p={date:$("purchaseDate").value||today(),desc:$("purchaseDesc").value,amount:amount,account:Number($("purchaseAccount").value)};
+db.purchases.push(p);
+save();$("purchaseAmount").value="";$("purchaseDesc").value="";renderAll();alert("خریداري ثبت شوه.");
+};
+$("saveSupplier").onclick=function(){
+var name=$("supplierName").value.trim();
+if(!name){alert("د اجناس راوړونکي نوم ولیکه");return;}
+db.suppliers.push({date:$("supplierDate").value||today(),name:name,item:$("supplierItem").value,trucks:Number($("supplierTrucks").value)||0,qty:Number($("supplierQty").value)||0,desc:$("supplierDesc").value});
+save();$("supplierName").value="";$("supplierTrucks").value="";$("supplierQty").value="";$("supplierDesc").value="";renderAll();alert("د اجناس راوړونکی ثبت شو.");
+};
+window.delEntry=function(i){if(confirm("دا معامله حذف شي؟")){db.entries.splice(i,1);save();renderAll();}};
+window.delPurchase=function(i){if(confirm("دا خریداري حذف شي؟")){db.purchases.splice(i,1);save();renderAll();}};
+window.delSupplier=function(i){if(confirm("دا ریکارډ حذف شي؟")){db.suppliers.splice(i,1);save();renderAll();}};
+$("printAccounts").onclick=function(){window.print()};$("printPurchase").onclick=function(){window.print()};$("printAll").onclick=function(){window.print()};
+
+function renderAll(){
+fillAccounts("accountSelect");fillAccounts("purchaseAccount");setDates();
+renderDashboard();renderAccounts();renderPurchases();renderSuppliers();renderAllTable();
+}
+function renderAllTable(){
+$("allRows").innerHTML=db.entries.map(function(e,i){return "<tr><td>"+e.date+"</td><td>"+esc(accountName(e.account))+"</td><td>"+(e.type==="in"?"راغلې پیسې":"مصرف")+"</td><td>"+esc(e.desc)+"</td><td>"+money(e.amount)+"</td><td><button class='btn red' onclick='window.delEntry("+i+")'>حذف</button></td></tr>";}).join("");
+}
+renderAll();
+})();
+</script>
+</body>
+</html>
