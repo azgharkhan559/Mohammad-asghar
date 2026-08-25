@@ -1,0 +1,18 @@
+د حساب آنلاین سیستم
+
+مهم:
+د templates/reports.html، login.html او نورو HTML فایلونو باندې مستقیم دوه ځله کلیک مه کوئ. دا فایلونه د Flask پروګرام له لارې باید خلاص شي.
+
+په کمپیوټر کې:
+1) Python 3 نصب کړئ.
+2) Terminal/CMD خلاص کړئ.
+3) دا فولډر خلاص کړئ.
+4) pip install -r requirements.txt
+5) python app.py
+6) بیا په براوزر کې http://127.0.0.1:5000 خلاص کړئ.
+
+لومړنی Admin:
+Username: admin
+Password: Admin@123
+
+د هر موبایل او کمپیوټر له هر ځایه د کارولو لپاره باید دا پروګرام په آنلاین Hosting/Server کې نصب شي. د مستقیم reports.html لینک مه کاروئ.
